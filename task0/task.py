@@ -1,35 +1,59 @@
-import csv
-
-def read_graph_from_csv(filename):
-    edges = []
-    with open(filename, newline='') as csvfile:
-        reader = csv.reader(csvfile)
-        for row in reader:
-            if len(row) == 2:
-                edges.append((int(row[0]), int(row[1])))
-    return edges
+import os
+import re
 
 
-def build_adjacency_matrix(edges):
-    max_vertex = max(max(u, v) for u, v in edges)
-    matrix = [[0] * max_vertex for _ in range(max_vertex)]
+def def_1(s: str):
+    if not s or not s.strip():
+        return []
+    out = []
+    for raw in s.splitlines():
+        t = raw.strip()
+        if not t:
+            continue
+        parts = [p for p in re.split(r"[,\s;]+", t) if p]
+        if len(parts) < 2:
+            continue
+        a = int(parts[0])
+        b = int(parts[1])
+        if a <= 0 or b <= 0:
+            raise ValueError("bad vertex id")
+        out.append((a, b))
+    return out
 
-    for u, v in edges:
-        matrix[u - 1][v - 1] = 1
-        matrix[v - 1][u - 1] = 1
-    return matrix
+
+def def_2(edges):
+    if not edges:
+        return []
+    m = 0
+    for a, b in edges:
+        if a > m:
+            m = a
+        if b > m:
+            m = b
+    g = [[0 for _ in range(m)] for _ in range(m)]
+    for a, b in edges:
+        i = a - 1
+        j = b - 1
+        g[i][j] = 1
+        g[j][i] = 1
+    return g
 
 
-def main():
-    filename = "task2.csv"
-    edges = read_graph_from_csv(filename)
-    matrix = build_adjacency_matrix(edges)
+def def_3(p: str):
+    with open(p, "r", newline="") as f:
+        return f.read()
 
-    for row in matrix:
-        print(row)
 
-    return matrix
+def main(s: str):
+    return def_2(def_1(s))
+
+
+def task(s: str):
+    return main(s)
 
 
 if __name__ == "__main__":
-    main()
+    p = os.path.join(os.path.dirname(__file__), "task2.csv")
+    mat = main(def_3(p))
+    for row in mat:
+        print(row)
